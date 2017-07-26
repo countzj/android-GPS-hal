@@ -18,19 +18,19 @@
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
 #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
 
-// Globals defns
-static gps_location_callback location_cb = NULL;
-static gps_status_callback status_cb = NULL;
-static gps_sv_status_callback svstatus_cb= NULL;
-static gps_nmea_callback nmea_cb = NULL;
-static gps_set_capabilities setcap_cb= NULL;
-static gps_acquire_wakelock acquire_lock_cb = NULL;
-static gps_release_wakelock rel_lock_cb = NULL;
-static gps_create_thread thread_cb = NULL;
+// jni callback function pointer
+static gps_location_callback location_cb     = NULL;
+static gps_status_callback status_cb         = NULL;
+static gps_sv_status_callback svstatus_cb    = NULL;
+static gps_nmea_callback nmea_cb             = NULL;
+static gps_set_capabilities setcap_cb        = NULL;
+static gps_acquire_wakelock acquire_lock_cb  = NULL;
+static gps_release_wakelock rel_lock_cb      = NULL;
+static gps_create_thread thread_cb           = NULL;
 
-static int gss_fd = -1;
-static int init   = 0;
-static char *buff = NULL;
+static int gss_fd   = -1;
+static int init     = 0;
+static char *buff   = NULL;
 pthread_t  thread;
 
 // Function declarations for sLocEngInterface
@@ -72,10 +72,6 @@ typedef struct
 #define  MAX_NMEA_TOKENS  25
 #define  GPS_DEBUG        1
 #define  GPS_LOCATION_ALL  (GPS_LOCATION_HAS_ACCURACY|GPS_LOCATION_HAS_ALTITUDE|GPS_LOCATION_HAS_BEARING|GPS_LOCATION_HAS_LAT_LONG|GPS_LOCATION_HAS_SPEED)
-#define  GPS_LOCATION_EXCEPT_ALTITUDE  (GPS_LOCATION_HAS_ACCURACY|GPS_LOCATION_HAS_BEARING|GPS_LOCATION_HAS_LAT_LONG|GPS_LOCATION_HAS_SPEED)
-
-
-#define  Svpnd_Version
 
 #if GPS_DEBUG
 #define  D(...)   ALOGD(__VA_ARGS__)
@@ -117,7 +113,7 @@ static int nmea_tokenizer_init( NmeaTokenizer*  t, const char*  p, const char*  
         if (q == NULL)
             q = end;
 
-        if (q >= p) {    //ÐÞ¸Ä
+        if (q >= p) {    //bug
             if (count < MAX_NMEA_TOKENS) {
                 t->tokens[count].p   = p;
                 t->tokens[count].end = q;
@@ -226,7 +222,7 @@ static void nmea_reader_update_utc_diff( NmeaReader*  r )
                24*(tm_utc.tm_yday +
                365*tm_utc.tm_year)));
 
-    r->utc_diff = time_local - time_utc;  //ÐÞ¸Ä
+    r->utc_diff = time_local - time_utc;  //bug
 }
 
 
@@ -421,9 +417,9 @@ static void nmea_reader_parse( NmeaReader*  r )
     NmeaTokenizer  tzer[1];
     Token          tok;
 
-    D("Received: '%.*s'", r->pos, r->in);
+    //D("Received: '%.*s'", r->pos, r->in);
     if (r->pos < 9) {
-        D("Too short. discarded.\n");
+        //D("Too short. discarded.\n");
         return;
     }
 
@@ -608,10 +604,6 @@ static void nmea_reader_parse( NmeaReader*  r )
 
 static void nmea_reader_addc( NmeaReader*  r, char  c )
 {
-    if (c == '\r') {
-        return;
-    }
-
     if (r->overflow) {
         r->overflow = (c != '\n');
         return;
