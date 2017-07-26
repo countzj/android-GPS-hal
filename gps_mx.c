@@ -113,7 +113,7 @@ static int nmea_tokenizer_init( NmeaTokenizer*  t, const char*  p, const char*  
         if (q == NULL)
             q = end;
 
-        if (q >= p) {    //bug
+        if (q >= p) {    //bug = --> >=
             if (count < MAX_NMEA_TOKENS) {
                 t->tokens[count].p   = p;
                 t->tokens[count].end = q;
@@ -194,7 +194,7 @@ typedef struct
     int     utc_diff;
     GpsLocation  fix;
     int     sv_status_changed;
-	GpsSvStatus sv_status;
+    GpsSvStatus sv_status;
     
     char    in[ NMEA_MAX_SIZE+1 ];
 } NmeaReader;
@@ -240,7 +240,7 @@ static void nmea_reader_init( NmeaReader*  r )
 
     nmea_reader_update_utc_diff( r );
 
-	r->sv_status.size = sizeof(r->sv_status);
+    r->sv_status.size = sizeof(r->sv_status);
 }
 
 
@@ -578,7 +578,7 @@ static void nmea_reader_parse( NmeaReader*  r )
     }
 
     else if ( !memcmp(tok.p, "GLL", 3) ) {
-        // do something ?
+        // todo
     }
     else if ( !memcmp(tok.p, "VTG", 3) ) {
         // todo
@@ -776,75 +776,71 @@ static int loc_init(GpsCallbacks* callbacks)
     if (gss_fd < 0)
     {
         LOGE("Mingxin GPS open failed: %s\n", strerror(errno));
-        return -1;
+        goto fail_3;
     }
 
     if (fcntl(gss_fd, F_SETFL, 0) < 0)
     { 
         LOGE("fcntl(F_SETFL) err gss_fd:%d %s\n", gss_fd,  strerror(errno));
-        close(gss_fd);
-        gss_fd = -1;
-        return -1;
+        goto fail_2;
     }
 
     if (SetAttr(gss_fd, 9600, 0, 8, 1, 'N') < 0 ) 
     {
         LOGE("fcntl(SetAttr) err gss_fd:%d %s\n", gss_fd,  strerror(errno));
-        close(gss_fd);
-        gss_fd = -1;
-        return -1;
+        goto fail_2;
     }
 
-    location_cb = callbacks->location_cb;
-    status_cb = callbacks->status_cb;
-    svstatus_cb = callbacks->sv_status_cb;
-    nmea_cb = callbacks->nmea_cb;
-    setcap_cb= callbacks->set_capabilities_cb;
-    acquire_lock_cb = callbacks->acquire_wakelock_cb;
-    rel_lock_cb = callbacks->release_wakelock_cb;
-    thread_cb = callbacks->create_thread_cb;
+    location_cb      = callbacks->location_cb;
+    status_cb        = callbacks->status_cb;
+    svstatus_cb      = callbacks->sv_status_cb;
+    nmea_cb          = callbacks->nmea_cb;
+    setcap_cb        = callbacks->set_capabilities_cb;
+    acquire_lock_cb  = callbacks->acquire_wakelock_cb;
+    rel_lock_cb      = callbacks->release_wakelock_cb;
+    thread_cb        = callbacks->create_thread_cb;
 
     buff = (char*) malloc(BUFF_LEN);
     if (NULL == buff)
     {
         LOGE("gps init alloc buff failed\n");
-        close(gss_fd);
-        gss_fd = -1;
-        return -1;
+        goto fail_2;
     }
 
     thread = thread_cb("gps_state_thread", gps_state_thread, NULL);
     if ( !thread ) {
         LOGE("could not create gps thread: %s", strerror(errno));
-        close(gss_fd);
-        gss_fd = -1;
-        free(buff);
-        buff = NULL;
-        return -1;
+        goto fail_1;
     }
-
     init = 1;
-
     LOGE("Mingxin GPS init success!\n");
-
     return 0;
+
+fail_1:
+    free(buff);	
+    buff = NULL;
+fail_2:
+    close(gss_fd);
+fail_3:
+    gss_fd = -1;
+    return -1;	
 }
 
 static int loc_start()
 {
-    LOGE("Mingxin GPS  start success!\n");
+    LOGE("GPS  start success!\n");
     return 0;
 }
 
 static int loc_stop()
 {
-    LOGE("Mingxin GPS  stop success!\n");
+    LOGE("GPS  stop success!\n");
     return 0;
 }
 
 static void loc_cleanup()
 {
-	void*  dummy;
+    void*  dummy;
 
     if (init != 0)
     {
@@ -856,24 +852,24 @@ static void loc_cleanup()
         init = 0;
     }
 
-    LOGE("Mingxin GPS  cleanup success!\n");
+    LOGE("GPS  cleanup success!\n");
 }
 
 static int loc_inject_time(GpsUtcTime time, int64_t timeReference, int uncertainty)
 {
-    LOGE("Mingxin GPS  inject time\n");
+    LOGE("GPS  inject time\n");
     return 0;
 }
 
 static int loc_inject_location(double latitude, double longitude, float accuracy)
 {
-    LOGE("Mingxin GPS  inject location!\n");
+    LOGE("GPS  inject location!\n");
     return 0;
 }
 
 static void loc_delete_aiding_data(GpsAidingData f)
 {
-    LOGE("Mingxin GPS  delete aiding data!\n");
+    LOGE("GPS  delete aiding data!\n");
 }
 
 const void* loc_get_extension(const char* name)
@@ -883,7 +879,7 @@ const void* loc_get_extension(const char* name)
 
 static int	loc_set_position_mode(GpsPositionMode mode, GpsPositionRecurrence recurrence, uint32_t min_interval,uint32_t preferred_accuracy,uint32_t preferred_time)
 {
-    LOGE("Mingxin GPS  set position mode!\n");
+    LOGE("GPS  set position mode!\n");
     return 0;
 }
 
@@ -917,7 +913,6 @@ static int epoll_deregister( int  epoll_fd, int  fd )
 static void gps_state_thread( void*  arg )
 {
     //char  buff[32];
-    int  nn, ret;
     NmeaReader  reader[1];
     int  epoll_fd   = epoll_create(1);
 
@@ -947,6 +942,7 @@ static void gps_state_thread( void*  arg )
         {
             for (;;)
             {
+                int  nn, ret;
                 ret = read( gss_fd, buff, BUFF_LEN );
                 if (ret < 0) 
                 {
@@ -996,13 +992,13 @@ static struct hw_module_methods_t gps_module_methods = {
 };
 
 struct hw_module_t HAL_MODULE_INFO_SYM = {
-    .tag = HARDWARE_MODULE_TAG,
+    .tag           = HARDWARE_MODULE_TAG,
     .version_major = 1,
     .version_minor = 0,
-    .id = GPS_HARDWARE_MODULE_ID,
-    .name = "Default GPS Module",
-    .author = "The Android Open Source Project",
-    .methods = &gps_module_methods,
+    .id            = GPS_HARDWARE_MODULE_ID,
+    .name          = "Default GPS Module",
+    .author        = "The Android Open Source Project",
+    .methods       = &gps_module_methods,
 };
 
 

@@ -21,11 +21,11 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_MODULE_RELATIVE_PATH := hw
+LOCAL_SHARED_LIBRARIES     := liblog libcutils
+LOCAL_SRC_FILES            := gps_mx.c
+LOCAL_MODULE               := gps.default
+LOCAL_MODULE_TAGS          := eng
 
-LOCAL_SHARED_LIBRARIES := liblog libcutils #libhardware
-LOCAL_SRC_FILES := gps_mx.c
-LOCAL_MODULE := gps.default
-LOCAL_MODULE_TAGS := eng
 include $(BUILD_SHARED_LIBRARY)
 
 
