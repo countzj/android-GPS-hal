@@ -113,7 +113,7 @@ static int nmea_tokenizer_init( NmeaTokenizer*  t, const char*  p, const char*  
         if (q == NULL)
             q = end;
 
-        if (q >= p) {    //bug
+        if (q >= p) {    //bug = --> >=
             if (count < MAX_NMEA_TOKENS) {
                 t->tokens[count].p   = p;
                 t->tokens[count].end = q;
