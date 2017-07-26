@@ -816,25 +816,25 @@ static int loc_init(GpsCallbacks* callbacks)
     LOGE("Mingxin GPS init success!\n");
     return 0;
 
-    fail_1:
+fail_1:
     free(buff);	
 	buff = NULL;
-	fail_2:
+fail_2:
 	close(gss_fd);
-	fail_3:
+fail_3:
     gss_fd = -1;
     return -1;	
 }
 
 static int loc_start()
 {
-    LOGE("Mingxin GPS  start success!\n");
+    LOGE("GPS  start success!\n");
     return 0;
 }
 
 static int loc_stop()
 {
-    LOGE("Mingxin GPS  stop success!\n");
+    LOGE("GPS  stop success!\n");
     return 0;
 }
 
@@ -852,24 +852,24 @@ static void loc_cleanup()
         init = 0;
     }
 
-    LOGE("Mingxin GPS  cleanup success!\n");
+    LOGE("GPS  cleanup success!\n");
 }
 
 static int loc_inject_time(GpsUtcTime time, int64_t timeReference, int uncertainty)
 {
-    LOGE("Mingxin GPS  inject time\n");
+    LOGE("GPS  inject time\n");
     return 0;
 }
 
 static int loc_inject_location(double latitude, double longitude, float accuracy)
 {
-    LOGE("Mingxin GPS  inject location!\n");
+    LOGE("GPS  inject location!\n");
     return 0;
 }
 
 static void loc_delete_aiding_data(GpsAidingData f)
 {
-    LOGE("Mingxin GPS  delete aiding data!\n");
+    LOGE("GPS  delete aiding data!\n");
 }
 
 const void* loc_get_extension(const char* name)
@@ -879,7 +879,7 @@ const void* loc_get_extension(const char* name)
 
 static int	loc_set_position_mode(GpsPositionMode mode, GpsPositionRecurrence recurrence, uint32_t min_interval,uint32_t preferred_accuracy,uint32_t preferred_time)
 {
-    LOGE("Mingxin GPS  set position mode!\n");
+    LOGE("GPS  set position mode!\n");
     return 0;
 }
 
