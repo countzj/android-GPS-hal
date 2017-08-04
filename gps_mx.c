@@ -194,7 +194,7 @@ typedef struct
     int     utc_diff;
     GpsLocation  fix;
     int     sv_status_changed;
-	GpsSvStatus sv_status;
+    GpsSvStatus sv_status;
     
     char    in[ NMEA_MAX_SIZE+1 ];
 } NmeaReader;
@@ -240,7 +240,7 @@ static void nmea_reader_init( NmeaReader*  r )
 
     nmea_reader_update_utc_diff( r );
 
-	r->sv_status.size = sizeof(r->sv_status);
+    r->sv_status.size = sizeof(r->sv_status);
 }
 
 
@@ -782,13 +782,13 @@ static int loc_init(GpsCallbacks* callbacks)
     if (fcntl(gss_fd, F_SETFL, 0) < 0)
     { 
         LOGE("fcntl(F_SETFL) err gss_fd:%d %s\n", gss_fd,  strerror(errno));
-		goto fail_2;
+        goto fail_2;
     }
 
     if (SetAttr(gss_fd, 9600, 0, 8, 1, 'N') < 0 ) 
     {
         LOGE("fcntl(SetAttr) err gss_fd:%d %s\n", gss_fd,  strerror(errno));
-		goto fail_2;
+        goto fail_2;
     }
 
     location_cb      = callbacks->location_cb;
@@ -804,13 +804,13 @@ static int loc_init(GpsCallbacks* callbacks)
     if (NULL == buff)
     {
         LOGE("gps init alloc buff failed\n");
-		goto fail_2;
+        goto fail_2;
     }
 
     thread = thread_cb("gps_state_thread", gps_state_thread, NULL);
     if ( !thread ) {
         LOGE("could not create gps thread: %s", strerror(errno));
-		goto fail_1;
+        goto fail_1;
     }
     init = 1;
     LOGE("Mingxin GPS init success!\n");
@@ -818,9 +818,9 @@ static int loc_init(GpsCallbacks* callbacks)
 
 fail_1:
     free(buff);	
-	buff = NULL;
+    buff = NULL;
 fail_2:
-	close(gss_fd);
+    close(gss_fd);
 fail_3:
     gss_fd = -1;
     return -1;	
@@ -942,7 +942,7 @@ static void gps_state_thread( void*  arg )
         {
             for (;;)
             {
-				int  nn, ret;
+                int  nn, ret;
                 ret = read( gss_fd, buff, BUFF_LEN );
                 if (ret < 0) 
                 {
