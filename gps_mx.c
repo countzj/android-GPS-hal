@@ -840,7 +840,7 @@ static int loc_stop()
 
 static void loc_cleanup()
 {
-	void*  dummy;
+    void*  dummy;
 
     if (init != 0)
     {
